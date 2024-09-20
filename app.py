@@ -3,8 +3,8 @@ import json
 import os
 import hashlib
 
-# Путь к JSON-файлу для хранения пользователей (используем абсолютный путь)
-USER_DATA_FILE = os.path.join(os.getcwd(), 'users.json')
+# Путь к JSON-файлу для хранения пользователей (файл должен находиться в той же директории, что и исполняемый файл)
+USER_DATA_FILE = 'users.json'
 
 # Функция для загрузки пользователей из файла
 def load_users():
