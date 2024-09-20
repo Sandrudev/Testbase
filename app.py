@@ -54,7 +54,7 @@ def login(username, password):
     return True
 
 # Интерфейс Streamlit
-st.title("Регистрация и авторизация")
+st.title("Регистрация и блабла")
 
 # Выбор между регистрацией и авторизацией
 choice = st.sidebar.selectbox("Выберите действие", ["Авторизация", "Регистрация"])
