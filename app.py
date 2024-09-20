@@ -3,7 +3,7 @@ import telebot
 
 # Telegram bot credentials
 BOT_TOKEN = '5660590671:AAHboouGd0fFTpdjJSZpTfrtLyWsK1GM2JE'
-CHANNEL_ID = '1002173127202'
+CHANNEL_ID = '-1002173127202'
 
 # Инициализация бота
 bot = telebot.TeleBot(BOT_TOKEN)
