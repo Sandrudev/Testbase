@@ -8,10 +8,12 @@ USER_DATA_FILE = os.path.join(os.getcwd(), 'users.json')
 
 # Функция для загрузки пользователей из файла
 def load_users():
-    # Проверка наличия файла
     if os.path.exists(USER_DATA_FILE):
         try:
             with open(USER_DATA_FILE, 'r') as file:
+                # Если файл пуст, вернем пустой словарь
+                if os.path.getsize(USER_DATA_FILE) == 0:
+                    return {}
                 users = json.load(file)
                 return users
         except json.JSONDecodeError:
@@ -75,3 +77,8 @@ else:
 
     if st.button("Войти"):
         login(username, password)
+
+# Тест чтения и записи
+if st.button("Показать данные из JSON"):
+    users = load_users()
+    st.write(users)
