@@ -1,54 +1,71 @@
 import streamlit as st
-import telebot
+import json
+import os
+import hashlib
 
-# Telegram bot credentials
-BOT_TOKEN = '5660590671:AAHboouGd0fFTpdjJSZpTfrtLyWsK1GM2JE'
-CHANNEL_ID = '-1002173127202'
+# Путь к JSON-файлу для хранения пользователей
+USER_DATA_FILE = 'users.json'
 
-# Инициализация бота
-bot = telebot.TeleBot(BOT_TOKEN)
+# Функция для загрузки пользователей из файла
+def load_users():
+    if os.path.exists(USER_DATA_FILE):
+        with open(USER_DATA_FILE, 'r') as file:
+            return json.load(file)
+    return {}
 
-# Функция отправки сообщения в Telegram канал
-def send_message_to_channel(message):
-    bot.send_message(CHANNEL_ID, message)
+# Функция для сохранения пользователей в файл
+def save_users(users):
+    with open(USER_DATA_FILE, 'w') as file:
+        json.dump(users, file)
 
-# Функция проверки логина и пароля в телеграм-канале
-def check_login_password(login, password):
-    updates = bot.get_updates()
-    for update in updates:
-        if update.message and update.message.chat.id == int(CHANNEL_ID):
-            text = update.message.text
-            if f"Login: {login}, Password: {password}" in text:
-                return True
-    return False
+# Функция для хеширования паролей
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
-# UI приложения
-st.title("Регистрация и Авторизация")
+# Функция для регистрации нового пользователя
+def register(username, password):
+    users = load_users()
+    if username in users:
+        st.error("Пользователь уже существует!")
+        return False
+    users[username] = hash_password(password)
+    save_users(users)
+    st.success("Регистрация успешна!")
+    return True
+
+# Функция для авторизации пользователя
+def login(username, password):
+    users = load_users()
+    if username not in users:
+        st.error("Неверное имя пользователя!")
+        return False
+    if users[username] != hash_password(password):
+        st.error("Неверный пароль!")
+        return False
+    st.success(f"Добро пожаловать, {username}!")
+    return True
+
+# Интерфейс Streamlit
+st.title("Регистрация и авторизация")
 
 # Выбор между регистрацией и авторизацией
-choice = st.selectbox("Выберите действие", ["Регистрация", "Авторизация"])
+choice = st.sidebar.selectbox("Выберите действие", ["Авторизация", "Регистрация"])
 
 if choice == "Регистрация":
-    st.subheader("Регистрация")
-    login = st.text_input("Введите логин")
-    password = st.text_input("Введите пароль", type="password")
-    
-    if st.button("Зарегистрироваться"):
-        if login and password:
-            # Отправка данных в телеграм-канал
-            message = f"Login: {login}, Password: {password}"
-            send_message_to_channel(message)
-            st.success("Вы успешно зарегистрировались!")
-        else:
-            st.error("Пожалуйста, введите логин и пароль.")
+    st.subheader("Регистрация нового пользователя")
+    new_username = st.text_input("Введите имя пользователя")
+    new_password = st.text_input("Введите пароль", type='password')
+    new_password_confirm = st.text_input("Подтвердите пароль", type='password')
 
-elif choice == "Авторизация":
-    st.subheader("Авторизация")
-    login = st.text_input("Введите логин")
-    password = st.text_input("Введите пароль", type="password")
-    
-    if st.button("Войти"):
-        if check_login_password(login, password):
-            st.success("Вы успешно вошли в систему!")
+    if st.button("Зарегистрироваться"):
+        if new_password == new_password_confirm:
+            register(new_username, new_password)
         else:
-            st.error("Неверный логин или пароль.")
+            st.error("Пароли не совпадают!")
+else:
+    st.subheader("Авторизация")
+    username = st.text_input("Введите имя пользователя")
+    password = st.text_input("Введите пароль", type='password')
+
+    if st.button("Войти"):
+        login(username, password)
