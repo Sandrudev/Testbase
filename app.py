@@ -8,15 +8,21 @@ USER_DATA_FILE = 'users.json'
 
 # Функция для загрузки пользователей из файла
 def load_users():
+    # Проверка наличия файла
     if os.path.exists(USER_DATA_FILE):
-        with open(USER_DATA_FILE, 'r') as file:
-            return json.load(file)
+        try:
+            with open(USER_DATA_FILE, 'r') as file:
+                users = json.load(file)
+                return users
+        except json.JSONDecodeError:
+            # Если файл пуст или содержит некорректные данные, инициализируем его как пустой словарь
+            return {}
     return {}
 
 # Функция для сохранения пользователей в файл
 def save_users(users):
     with open(USER_DATA_FILE, 'w') as file:
-        json.dump(users, file)
+        json.dump(users, file, indent=4)  # Форматированный JSON для удобства чтения
 
 # Функция для хеширования паролей
 def hash_password(password):
